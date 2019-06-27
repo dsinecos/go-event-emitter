@@ -12,6 +12,16 @@ type button struct {
 	*evtemtr.EventEmitter
 }
 
+// ButtonEvent TODO
+type ButtonEvent struct {
+	string
+}
+
+// GetEventName TODO
+func (be ButtonEvent) GetEventName() string {
+	return be.string
+}
+
 func main() {
 	button := button{
 		"light",
@@ -21,16 +31,19 @@ func main() {
 	onClick1 := make(chan string)
 	onClick2 := make(chan string)
 
+	clickButtonEvent := ButtonEvent{"click"}
+	mouseOverButtonEvent := ButtonEvent{"mouseover"}
+
 	var wg sync.WaitGroup
-	button.On("click", onClick1).List()
+	button.On(clickButtonEvent, onClick1).List()
 	wg.Add(1)
 	listen(onClick1, &wg)
-	button.On("click", onClick2).List()
+	button.On(clickButtonEvent, onClick2).List()
 	wg.Add(1)
 	listen(onClick2, &wg)
 
-	button.Emit("click")
-	button.Emit("mouseover")
+	button.Emit(clickButtonEvent)
+	button.Emit(mouseOverButtonEvent)
 
 	wg.Wait()
 }

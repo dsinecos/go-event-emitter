@@ -6,19 +6,19 @@ import (
 
 // EventEmitter TODO
 type EventEmitter struct {
-	eventQueue map[string][]chan<- string
+	eventQueue map[Event][]chan<- string
 }
 
 // New TODO
 func New() *EventEmitter {
 	newEventEmitter := &EventEmitter{
-		eventQueue: make(map[string][]chan<- string),
+		eventQueue: make(map[Event][]chan<- string),
 	}
 	return newEventEmitter
 }
 
 // On TODO
-func (emtr *EventEmitter) On(event string, listener chan<- string) *EventEmitter {
+func (emtr *EventEmitter) On(event Event, listener chan<- string) *EventEmitter {
 	if _, ok := emtr.eventQueue[event]; !ok {
 		emtr.eventQueue[event] = make([]chan<- string, 0)
 	}
@@ -28,7 +28,7 @@ func (emtr *EventEmitter) On(event string, listener chan<- string) *EventEmitter
 }
 
 // Emit TODO
-func (emtr *EventEmitter) Emit(event string) *EventEmitter {
+func (emtr *EventEmitter) Emit(event Event) *EventEmitter {
 
 	if _, ok := emtr.eventQueue[event]; !ok {
 		fmt.Printf("No listeners attached to the event %s\n", event)
@@ -37,7 +37,7 @@ func (emtr *EventEmitter) Emit(event string) *EventEmitter {
 
 	for _, listener := range emtr.eventQueue[event] {
 		go func(listener chan<- string) {
-			listener <- event
+			listener <- event.GetEventName()
 		}(listener)
 	}
 
@@ -45,7 +45,7 @@ func (emtr *EventEmitter) Emit(event string) *EventEmitter {
 }
 
 // Remove TODO
-func (emtr *EventEmitter) Remove(event string, listener chan<- string) *EventEmitter {
+func (emtr *EventEmitter) Remove(event Event, listener chan<- string) *EventEmitter {
 
 	if _, ok := emtr.eventQueue[event]; !ok {
 		fmt.Printf("No listeners attached to the event %s\n", event)
