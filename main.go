@@ -28,27 +28,34 @@ func main() {
 		evtemtr.New(),
 	}
 
-	onClick1 := make(chan string)
-	onClick2 := make(chan string)
+	onClick1 := make(chan evtemtr.EventTuple)
+	onClick2 := make(chan evtemtr.EventTuple)
+	onMouseOver := make(chan evtemtr.EventTuple)
 
 	clickButtonEvent := ButtonEvent{"click"}
 	mouseOverButtonEvent := ButtonEvent{"mouseover"}
 
 	var wg sync.WaitGroup
+
 	button.On(clickButtonEvent, onClick1).List()
 	wg.Add(1)
 	listen(onClick1, &wg)
+
 	button.On(clickButtonEvent, onClick2).List()
 	wg.Add(1)
 	listen(onClick2, &wg)
 
-	button.Emit(clickButtonEvent)
-	button.Emit(mouseOverButtonEvent)
+	button.On(mouseOverButtonEvent, onMouseOver).List()
+	wg.Add(1)
+	listen(onMouseOver, &wg)
+
+	button.Emit(clickButtonEvent, 1)
+	button.Emit(mouseOverButtonEvent, 2)
 
 	wg.Wait()
 }
 
-func listen(c <-chan string, wg *sync.WaitGroup) {
+func listen(c <-chan evtemtr.EventTuple, wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		fmt.Println("Listener invoked ", <-c)
