@@ -4,11 +4,19 @@ import (
 	"fmt"
 	"sync"
 
-	EventEmitter "github.com/dsinecos/go-event-emitter/evtemtr"
+	"github.com/dsinecos/go-event-emitter/evtemtr"
 )
 
+type button struct {
+	buttonType string
+	*evtemtr.EventEmitter
+}
+
 func main() {
-	button := EventEmitter.New()
+	button := button{
+		"light",
+		evtemtr.New(),
+	}
 
 	onClick1 := make(chan string)
 	onClick2 := make(chan string)
