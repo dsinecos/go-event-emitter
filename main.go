@@ -28,31 +28,27 @@ func main() {
 		evtemtr.New(),
 	}
 
-	onClick1 := make(chan evtemtr.EventTuple)
-	onClick2 := make(chan evtemtr.EventTuple)
 	onMouseOver := make(chan evtemtr.EventTuple)
+	onceMouseOver := make(chan evtemtr.EventTuple)
 
-	clickButtonEvent := ButtonEvent{"click"}
 	mouseOverButtonEvent := ButtonEvent{"mouseover"}
 
 	var wg sync.WaitGroup
-
-	button.On(clickButtonEvent, onClick1).List()
-	wg.Add(1)
-	listen(onClick1, &wg)
-
-	button.On(clickButtonEvent, onClick2).List()
-	wg.Add(1)
-	listen(onClick2, &wg)
 
 	button.On(mouseOverButtonEvent, onMouseOver).List()
 	wg.Add(1)
 	listen(onMouseOver, &wg)
 
-	button.Emit(clickButtonEvent, 1)
+	button.Once(mouseOverButtonEvent, onceMouseOver).List()
+	// wg.Add(1)
+	// listen(onceMouseOver, &wg)
+
+	button.Remove(mouseOverButtonEvent, onceMouseOver).List()
+
 	button.Emit(mouseOverButtonEvent, 2)
 
 	wg.Wait()
+	button.List()
 }
 
 func listen(c <-chan evtemtr.EventTuple, wg *sync.WaitGroup) {
